@@ -281,6 +281,21 @@ server.tool(
         }
       }
 
+      // Utilidad para convertir HEX a RGB (valores entre 0 y 1)
+      function hexToRgb(
+        hex: string,
+      ): { red: number; green: number; blue: number } | null {
+        // Elimina el '#' si está presente
+        hex = hex.replace(/^#/, "");
+        if (hex.length !== 6) return null;
+        const num = parseInt(hex, 16);
+        return {
+          red: ((num >> 16) & 255) / 255,
+          green: ((num >> 8) & 255) / 255,
+          blue: (num & 255) / 255,
+        };
+      }
+
       if (fields.length === 0) {
         throw new Error("No se especificó ningún formato para aplicar.");
       }
@@ -315,9 +330,12 @@ server.tool(
   },
 );
 
-// --- Iniciar Servidor ---
-const transport = new StdioServerTransport();
-await server.connect(transport);
-console.error(
-  "Servidor MCP con cuenta de servicio iniciado. Listo para recibir solicitudes.",
-);
+async function main() {
+  const transport = new StdioServerTransport();
+  await server.connect(transport);
+  console.error("Weather MCP Server running on stdio");
+}
+
+main().catch((error) => {
+  console.error("Fatal error in main():", error);
+});
